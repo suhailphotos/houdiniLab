@@ -1,0 +1,46 @@
+{
+    "baseColor": {
+        "label": "Base Color",
+        "pattern": "*color*,*colour*,*diffuse*,*albedo*,*col*, *diff*"
+    },
+    "metallic": {
+        "label": "Metallic",
+        "pattern": "*metal*"
+    },
+    "roughness": {
+        "label": "Roughness",
+        "pattern": "*rough*"
+    },
+    "glossiness": {
+        "label": "Glossiness",
+        "pattern": "*gloss*"
+    },
+    "normal": {
+        "label": "Normal",
+        "pattern": "*normal*,*norm*, *NRM*, *NOR*"
+    },
+    "displacement": {
+        "label": "Height",
+        "pattern": "*height*,*disp*"
+    },
+    "emission": {
+        "label": "Emission",
+        "pattern": "*emit*,*emission*"
+    },
+    "alpha": {
+        "label": "Alpha",
+        "pattern": "*alpha*"
+    },
+    "refraction": {
+        "label": "Refraction",
+        "pattern": "*refract*"
+    },
+    "reflection": {
+        "label": "Reflection",
+        "pattern": "*refl*"
+    },
+    "ao": {
+        "label": "Ambient Occlusion",
+        "pattern": "*ao*,*ambient*"
+    }
+}
