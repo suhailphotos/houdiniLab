@@ -371,6 +371,6 @@ class ProjManager:
             return
         
 if __name__ == '__main__':
-    course_projs = ProjManager('/Users/suhail/Documents/PyHub/config/config.ini', 'courses')
+    course_projs = ProjManager('/Users/suhail/Library/CloudStorage/Dropbox/matrix/config/config.ini', 'courses')
     pprint.pprint(course_projs.projects)
 

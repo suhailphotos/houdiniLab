@@ -2,7 +2,7 @@ import hou
 import os, json
 
 
-project_list = '/Users/suhail/Documents/houdini/python/config/proj_list.json'
+project_list = '/Users/suhail/Library/CloudStorage/Dropbox/matrix/data/json/project_list.json'
 try:
     with open(project_list, 'r') as f:
         data = json.load(f)

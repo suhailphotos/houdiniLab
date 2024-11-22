@@ -71,8 +71,6 @@ class RenameTexture:
                         for subdir in dirs:
                             subdir_path = os.path.join(root, subdir)
                             self._rename_folder_and_files(subdir_path)
-                # Rename the top-level folders
-                self._rename_folder_and_files(self.sourceFolder)
         except Exception as e:
             logging.error(f"Error during renaming folders: {e}")
 

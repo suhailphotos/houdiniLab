@@ -174,7 +174,7 @@ def fetch():
     for title in data.dataset['title']:
         tr.insert(title)
     env = trie.EnvVariable('CACHE_DATASET_PATH')
-    path=env.set_env_var('/Users/suhail/Documents/PyHub/cache')
+    path=env.set_env_var('/Users/suhail/Library/CloudStorage/Dropbox/matrix/data/PyHub/cache')
     if not os.path.exists(path):
         os.makedirs(path)
     cache_file = '/'.join([path, 'cached_titles.pkl'])

@@ -11,7 +11,7 @@ def update_asset_path(old_str: str, replace_str: str, asset_gallery: hou.AssetGa
         new_path = current_path.replace(old_str, replace_str)
         asset_gallery.setFilePath(item_id, new_path)
 
-asset_path = '/Users/suhail/Documents/houdini/assetGalleryDB/usd_assetGallery.db'
+asset_path = '/Users/suhail/Library/CloudStorage/Dropbox/matrix/data/db/assetGallery/usd_assetGallery.db'
 asset_gallery = hou.AssetGalleryDataSource(asset_path)
 old_str = 'kitbash'
 replace_str = 'kbh'
