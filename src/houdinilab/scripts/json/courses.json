@@ -1,9 +1,19 @@
 {
   "courses": [
     {
+      "enable": true,
       "name": "Machine Learning for VFX",
-      "var": "REBELWAY_ML4VFX",
-      "path": "/Users/suhail/Library/CloudStorage/SynologyDrive-dataLib/threeD/courses/05_Machine_Learning_in_VFX/ml4vfxTrees"
+      "vars": [
+        {
+          "REBELWAY_ML4VFX": "/Users/suhail/Library/CloudStorage/SynologyDrive-dataLib/threeD/courses/05_Machine_Learning_in_VFX/ml4vfx"
+        }
+      ],
+      "sys_path": [
+        "/Users/suhail/Library/CloudStorage/SynologyDrive-dataLib/threeD/courses/05_Machine_Learning_in_VFX/ml4vfxTrees"
+      ],
+      "hda": [
+        "/Users/suhail/Library/CloudStorage/SynologyDrive-dataLib/threeD/courses/05_Machine_Learning_in_VFX/ml4vfxTrees/houAStar"
+      ]
     }
   ]
 }

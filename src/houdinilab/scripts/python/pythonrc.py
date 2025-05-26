@@ -61,21 +61,35 @@ def load_config(fname):
     return {}
 
 
-def add_paths_from_config(config, key):
+def apply_dynamic_entry(entry, kind):
     """
-    For each entry in config[key], if 'path' is non-empty,
-    insert it into sys.path and set its env var.
+    Given one entry (from 'projects' or 'courses'):
+      - set each var in 'vars' to its path
+      - insert each 'sys_path' into sys.path
+      - prepend each 'hda' into HOUDINI_OTLSCAN_PATH
     """
-    for entry in config.get(key, []):
-        p   = entry.get("path", "").strip()
-        var = entry.get("var",  "").strip()
-        if p and os.path.isdir(p):
-            if p not in sys.path:
-                sys.path.insert(0, p)
-                print(f"[pythonrc] added {key[:-1]} path: {p}")
-            if var:
-                os.environ[var] = p
-                print(f"[pythonrc] set env {var}={p}")
+    # 1) env vars
+    for var_map in entry.get("vars", []):
+        for var, val in var_map.items():
+            if val and os.path.isdir(val):
+                os.environ[var] = val
+                print(f"[pythonrc] set env {var}={val}")
+
+    # 2) python imports
+    for sp in entry.get("sys_path", []):
+        if sp and os.path.isdir(sp) and sp not in sys.path:
+            sys.path.insert(0, sp)
+            print(f"[pythonrc] added sys.path for {kind}: {sp}")
+
+    # 3) hda scan paths
+    scan = os.environ.get("HOUDINI_OTLSCAN_PATH", "")
+    for hp in entry.get("hda", []):
+        if hp and os.path.isdir(hp):
+            parts = scan.split(":") if scan else []
+            if hp not in parts:
+                scan = hp + (":" + scan if scan else "")
+                print(f"[pythonrc] prepended HDA path for {kind}: {hp}")
+    os.environ["HOUDINI_OTLSCAN_PATH"] = scan
 
 # ─────────────────────────────────────────────────────────────────────────
 # 3) Bootstrap & error handling
@@ -84,13 +98,21 @@ def _bootstrap():
     # 3.1 Poetry packages
     add_poetry_site_packages("houdinilab")
 
-    # 3.2 Projects
+    # 3.2 Projects (vars, python paths, HDAs)
     projects_cfg = load_config("projects.json")
-    add_paths_from_config(projects_cfg, "projects")
+    for entry in projects_cfg.get("projects", []):
+        if not entry.get("enable", True):
+            print(f"[pythonrc] skipping disabled project: {entry.get('name','<unnamed>')}")
+            continue
+        apply_dynamic_entry(entry, kind="project")
 
-    # 3.3 Courses
+    # 3.3 Courses (vars, python paths, HDAs)
     courses_cfg = load_config("courses.json")
-    add_paths_from_config(courses_cfg, "courses")
+    for entry in courses_cfg.get("courses", []):
+        if not entry.get("enable", True):
+            print(f"[pythonrc] skipping disabled course: {entry.get('name','<unnamed>')}")
+            continue
+        apply_dynamic_entry(entry, kind="course")
 
 try:
     _bootstrap()
