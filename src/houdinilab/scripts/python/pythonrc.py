@@ -3,8 +3,25 @@ import os
 import sys
 import glob
 import json
+import traceback
 
+# ─────────────────────────────────────────────────────────────────────────
+# 1) Compute BASE, JSON_DIR, and LOG_DIR robustly
+# ─────────────────────────────────────────────────────────────────────────
+try:
+    BASE = os.path.realpath(os.path.dirname(__file__))
+except NameError:
+    import inspect
+    BASE = os.path.realpath(os.path.dirname(inspect.getfile(inspect.currentframe())))
 
+JSON_DIR = os.path.join(BASE, "..", "json")
+LOG_DIR  = os.path.join(BASE, "..", "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+ERROR_LOG = os.path.join(LOG_DIR, "pythonrc_error.log")
+
+# ─────────────────────────────────────────────────────────────────────────
+# 2) Core functions
+# ─────────────────────────────────────────────────────────────────────────
 def add_poetry_site_packages(project_env="houdinilab"):
     """
     Locate the Poetry virtualenv for `project_env`, find its
@@ -28,33 +45,57 @@ def add_poetry_site_packages(project_env="houdinilab"):
     else:
         print(f"[pythonrc] site-packages not found or already in path: {site_pkgs!r}")
 
-def add_experimental_packages(course_root=None):
+
+def load_config(fname):
     """
-    Walks your ML4VFX course worktree for any folders that look like packages
-    (i.e. contain an __init__.py) inside `ml4vfxTrees/*` and adds them to sys.path.
+    Load and parse a JSON file if it exists, otherwise return empty dict.
     """
-    if course_root is None:
-        # hard-code your course location here, or read from an env var:
-        course_root = os.path.expanduser(
-            "~/Library/CloudStorage/SynologyDrive-dataLib/threeD/courses/"
-            "05_Machine_Learning_in_VFX/ml4vfxTrees"
-        )
+    path = os.path.join(JSON_DIR, fname)
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"[pythonrc] config not found: {fname}")
+    except json.JSONDecodeError as e:
+        print(f"[pythonrc] error parsing {fname}: {e}")
+    return {}
 
-    if not os.path.isdir(course_root):
-        print(f"[pythonrc] course_root not found: {course_root!r}")
-        return
 
-    # find every subfolder in ml4vfxTrees that has an __init__.py
-    for pkg_dir in glob.glob(os.path.join(course_root, "*")):
-        init_py = os.path.join(pkg_dir, "__init__.py")
-        if os.path.isfile(init_py):
-            # add the parent so that "import houAStar" works
-            parent = os.path.dirname(pkg_dir)
-            if parent not in sys.path:
-                sys.path.insert(0, parent)
-                print(f"[pythonrc] added experimental package path: {parent!r}")
+def add_paths_from_config(config, key):
+    """
+    For each entry in config[key], if 'path' is non-empty,
+    insert it into sys.path and set its env var.
+    """
+    for entry in config.get(key, []):
+        p   = entry.get("path", "").strip()
+        var = entry.get("var",  "").strip()
+        if p and os.path.isdir(p):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+                print(f"[pythonrc] added {key[:-1]} path: {p}")
+            if var:
+                os.environ[var] = p
+                print(f"[pythonrc] set env {var}={p}")
 
-# Run them both
-add_poetry_site_packages("houdinilab")
-add_experimental_packages()
+# ─────────────────────────────────────────────────────────────────────────
+# 3) Bootstrap & error handling
+# ─────────────────────────────────────────────────────────────────────────
+def _bootstrap():
+    # 3.1 Poetry packages
+    add_poetry_site_packages("houdinilab")
 
+    # 3.2 Projects
+    projects_cfg = load_config("projects.json")
+    add_paths_from_config(projects_cfg, "projects")
+
+    # 3.3 Courses
+    courses_cfg = load_config("courses.json")
+    add_paths_from_config(courses_cfg, "courses")
+
+try:
+    _bootstrap()
+except Exception:
+    with open(ERROR_LOG, "w") as f:
+        traceback.print_exc(file=f)
+    # Uncomment to propagate error into Houdini console:
+    # raise
