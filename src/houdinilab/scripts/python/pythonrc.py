@@ -2,6 +2,38 @@
 import os
 import sys
 import glob
+import json
+
+# >>> BEGIN DEBUG LOG SETUP <<<
+import atexit
+
+# open log in append mode
+LOG_PATH = "/tmp/houdini_pythonrc.log"
+_log = open(LOG_PATH, "a", encoding="utf-8")
+
+def log(msg):
+    _log.write(msg.rstrip() + "\n")
+    _log.flush()
+
+# ensure file is closed when Houdini exits
+atexit.register(lambda: _log.close())
+# >>> END DEBUG LOG SETUP <<<
+
+BASE = os.path.dirname(__file__)
+JSON_DIR = os.path.path(os.path.join(BASE, "..", "json"))
+
+
+def load_config(fname):
+    """Load and parse a JSON file if it exists, otherwise return empty dict."""
+    path = os.path.join(JSON_DIR, fname)
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"[pythonrc] config not found: {fname}")
+    except json.JSONDecodeError as e:
+        print(f"[pythonrc] error parsing {fname}: {e}")
+    return {}
 
 def add_poetry_site_packages(project_env="houdinilab"):
     """
@@ -28,8 +60,36 @@ def add_poetry_site_packages(project_env="houdinilab"):
         if site_pkgs not in sys.path:
             sys.path.insert(0, site_pkgs)
             print(f"[pythonrc] added site-packages: {site_pkgs}")
+            log(f"[pythonrc] added site-packages: {site_pkgs}")
     else:
         print(f"[pythonrc] expected site-packages not found at {site_pkgs!r}")
 
-# run it
-add_poetry_site_packages()
+
+def add_paths_from_config(config, key):
+    """
+    For each entry in config[key], if 'path' is non-empty,
+    insert it into sys.path and set an env var.
+    """
+    for entry in config.get(key, []):
+        p = entry.get("path", "").strip()
+        var = entry.get("var", "").strip()
+        if p and os.path.isdir(p):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+                print(f"[pythonrc] added {key[:-1]} path: {p}")
+            if var:
+                os.environ[var] = p
+                print(f"[pythonrc] set env {var}={p}")
+
+# === Bootstrap sequence for projects & courses ===
+# 1) Poetry venv
+add_poetry_site_packages("houdinilab")
+
+# 2) Projects
+projects_cfg = load_config("projects.json")
+add_paths_from_config(projects_cfg, "projects")
+
+# 3) Courses
+courses_cfg = load_config("courses.json")
+add_paths_from_config(courses_cfg, "courses")
+### End additions ###
