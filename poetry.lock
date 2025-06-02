@@ -817,13 +817,13 @@ signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
 
 [[package]]
 name = "oauthmanager"
-version = "0.1.9"
+version = "0.1.10"
 description = "A module for managing API authentication using 1Password and more."
 optional = false
 python-versions = "<4.0,>=3.11"
 files = [
-    {file = "oauthmanager-0.1.9-py3-none-any.whl", hash = "sha256:b3fc02301207659ada517f353480dd1358ecffac2325d8fb0c9361dfe0213330"},
-    {file = "oauthmanager-0.1.9.tar.gz", hash = "sha256:521c7ce36d97b59be19991531356611354aebccf1c0d7fbc90113f564f5ec9d0"},
+    {file = "oauthmanager-0.1.10-py3-none-any.whl", hash = "sha256:97c22297372ee7135b9f6f614f0b0f08dfde8d0bf274d50df070fa4ab21fc4f1"},
+    {file = "oauthmanager-0.1.10.tar.gz", hash = "sha256:9f3315e3faff04a9a856b0cb09f86f4617bcefd49afc42dbd2b609ab5e01019e"},
 ]
 
 [package.dependencies]
