@@ -10,7 +10,7 @@
             "kind": "path"
           },
           {
-            "name": "RNDFOREST_API_URL",
+            "name": "FASHION_API_URL",
             "value": "http://10.29.25.245:8000",
             "kind": "value"
           }
